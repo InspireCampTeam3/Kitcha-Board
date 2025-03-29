@@ -43,6 +43,10 @@ dependencies {
 
     // pdf
     implementation 'org.apache.pdfbox:pdfbox:2.0.29'
+
+    // aws sdk
+    implementation platform('software.amazon.awssdk:bom:2.20.56')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 dependencyManagement {
