@@ -14,14 +14,13 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 public class FileService {
@@ -29,6 +28,16 @@ public class FileService {
     private BoardRepository boardRepository;
     @Autowired
     private FileRepository fileRepository;
+
+    @Autowired
+    private S3Service s3Service;
+
+    // PDF 바이트 배열
+    private byte[] getPdfBytes(PDDocument document) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        document.save(baos);
+        return baos.toByteArray();
+    }
 
     @Async("taskExecutor")
     public void createPdf(Board board) throws IOException {
@@ -98,28 +107,13 @@ public class FileService {
             // 콘텐츠 스트림 닫기
             contentStream.close();
 
-            // PDF 파일 저장
-            String folderPath = System.getProperty("os.name").toLowerCase().contains("win")
-                    ? "c:\\Temp\\kitcha\\"
-                    : "/tmp/kitcha/";
+            // S3에 PDF 저장
+            String s3Path = "kitcha/" + UUID.randomUUID().toString().replace("-", "") + ".pdf";
+            byte[] bytes = getPdfBytes(document);
+            s3Service.uploadFileToS3(s3Path, bytes);
 
-            try {
-                Path path = Paths.get(folderPath);
-                if (!Files.exists(path)) {
-                    Files.createDirectories(path);
-                }
-            } catch (IOException e) {
-                log.error("폴더 생성 실패: " + e.getMessage());
-            }
-
-            String fileName = board.getNewsTitle().replaceAll("\\s+", "_") + ".pdf";
-            String fullPath = folderPath + fileName;
-            document.save(fullPath);
-
-            // 문서 닫기
-            document.close();
-
-            File file = new File(board.getBoardId(), board.getNewsTitle(), fullPath);
+            // DB에 PDF 메타데이터 저장
+            File file = new File(board.getBoardId(), board.getNewsTitle(), s3Path);
             fileRepository.save(file);
 
         } catch (IOException e) {
@@ -128,7 +122,19 @@ public class FileService {
         }
     }
 
-    // 6. 파일 다운로드
+    // 파일 Presigned URL 반환
+    public String getPresignedFileUrl(Long boardId) {
+        File file = fileRepository.findById(boardId).orElse(null);
+
+        if (file == null) {
+            return null;
+        }
+        Optional<String> url = s3Service.generatePresignedUrl(file.getFilePath(), file.getFileName());
+
+        return url.orElse(null);
+    }
+
+    // 6. 파일 다운로드 (로컬에 저장된 파일을 불러오는 경우에 사용함)
     public Optional<File> download(Long boardId) {
         Optional<Board> board = boardRepository.findById(boardId);
         Optional<File> file = fileRepository.findById(boardId);
