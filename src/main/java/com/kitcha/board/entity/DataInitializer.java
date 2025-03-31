@@ -1,8 +1,7 @@
 package com.kitcha.board.entity;
 
+import com.kitcha.board.publisher.FileEventPublisher;
 import com.kitcha.board.repository.BoardRepository;
-import com.kitcha.board.repository.FileRepository;
-import com.kitcha.board.service.FileService;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -15,13 +14,13 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 public class DataInitializer implements CommandLineRunner {
     private final BoardRepository boardRepository;
-    private final FileRepository fileRepository;
-    private final FileService fileService;
+
+    private final FileEventPublisher publisher;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        if (boardRepository.count() == 0 && fileRepository.count() == 0) {
+        if (boardRepository.count() == 0) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
             // 1번 데이터
@@ -136,14 +135,14 @@ public class DataInitializer implements CommandLineRunner {
             boardRepository.save(board7);
             boardRepository.save(board8);
 
-            fileService.createPdf(board1);
-            fileService.createPdf(board2);
-            fileService.createPdf(board3);
-            fileService.createPdf(board4);
-            fileService.createPdf(board5);
-            fileService.createPdf(board6);
-            fileService.createPdf(board7);
-            fileService.createPdf(board8);
+            publisher.sendFileCreateEvent(board1);
+            publisher.sendFileCreateEvent(board2);
+            publisher.sendFileCreateEvent(board3);
+            publisher.sendFileCreateEvent(board4);
+            publisher.sendFileCreateEvent(board5);
+            publisher.sendFileCreateEvent(board6);
+            publisher.sendFileCreateEvent(board7);
+            publisher.sendFileCreateEvent(board8);
         }
     }
 }

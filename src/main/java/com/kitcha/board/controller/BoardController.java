@@ -6,7 +6,6 @@ import com.kitcha.board.dto.BoardList;
 import com.kitcha.board.dto.BoardUpdate;
 import com.kitcha.board.entity.Board;
 import com.kitcha.board.service.BoardService;
-import com.kitcha.board.service.FileService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +19,6 @@ import java.util.List;
 public class BoardController {
     @Autowired
     private BoardService boardService;
-    @Autowired
-    private FileService fileService;
 
     // 1. 게시글 작성
     @PostMapping
@@ -77,13 +74,5 @@ public class BoardController {
             @RequestHeader("X-User-Role") String role) {
 
         boardService.delete(boardId, Long.parseLong(userId), role);
-    }
-
-    // 6. 첨부파일 다운로드
-    @GetMapping("/{boardId}/download")
-    public String download(@PathVariable Long boardId,
-                         HttpServletResponse response) throws IOException {
-
-        return fileService.getPresignedFileUrl(boardId);
     }
 }
