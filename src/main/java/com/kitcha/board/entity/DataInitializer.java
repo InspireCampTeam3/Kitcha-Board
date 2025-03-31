@@ -6,7 +6,7 @@ import com.kitcha.board.service.FileService;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+// import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,7 +19,7 @@ public class DataInitializer implements CommandLineRunner {
     private final FileService fileService;
 
     @Override
-    @Transactional
+    // @Transactional
     public void run(String... args) throws Exception {
         if (boardRepository.count() == 0 && fileRepository.count() == 0) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");

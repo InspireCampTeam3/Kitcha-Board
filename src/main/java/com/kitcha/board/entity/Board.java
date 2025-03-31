@@ -4,52 +4,58 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.kitcha.board.dto.BoardDetail;
 import com.kitcha.board.dto.BoardList;
-import jakarta.persistence.*;
+// import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
+// import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@Entity
-@Table(name = "board")
+// @Entity
+// @Table(name = "board")
+@Document(collection = "board")
 @Data
 @NoArgsConstructor
 public class Board {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long boardId;
 
-    @Column
+    // @Column
     private String nickname;
 
-    @Column(nullable = false)
+    // @Column(nullable = false)
     private String boardTitle;
 
-    @Column(nullable = false)
+    // @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
+    // @Column(nullable = false)
     private int hitCnt = 0;
 
-    @Column(nullable = false)
+    // @Column(nullable = false)
     private String newsTitle;
 
-    @Column(nullable = false, length = 3000)
+    // @Column(nullable = false, length = 3000)
     private String longSummary;
 
-    @Column(nullable = false)
+    // @Column(nullable = false)
     private String newsUrl;
 
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    // @CreationTimestamp
+    // @Column(nullable = false, updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    // @Column(nullable = false)
     private boolean deletedYn = false;
 
-    @Column
+    // @Column
     private Long userId;
 
 //    @OneToOne(cascade = CascadeType.ALL)
