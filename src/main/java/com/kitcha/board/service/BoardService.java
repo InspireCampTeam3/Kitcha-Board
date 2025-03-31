@@ -1,16 +1,17 @@
 package com.kitcha.board.service;
 
-import com.kitcha.board.dto.BoardCreate;
-import com.kitcha.board.dto.BoardDetail;
-import com.kitcha.board.dto.BoardList;
-import com.kitcha.board.dto.BoardUpdate;
+import com.kitcha.board.dto.*;
 import com.kitcha.board.entity.Board;
+import com.kitcha.board.publisher.FileEventPublisher;
 import com.kitcha.board.repository.BoardRepository;
+import com.netflix.discovery.converters.Auto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,12 +19,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class BoardService {
     @Autowired
     private BoardRepository boardRepository;
+
     @Autowired
-    private FileService fileService;
+    private FileEventPublisher publisher;
 
     // 1. 게시글 작성
     public Board create(Long userId, String nickname, BoardCreate boardCreate) throws IOException {
@@ -33,10 +36,14 @@ public class BoardService {
         }
 
         Board board = boardCreate.toEntity(userId, nickname);
+        board = boardRepository.save(board);
 
-        fileService.createPdf(board);
+        log.info("Board created: {}", board);
 
-        return boardRepository.save(board);
+//        fileService.createPdf(board);
+        publisher.sendFileCreateEvent(board);
+
+        return board;
     }
 
 
