@@ -24,6 +24,7 @@ public class BoardEventPublisher {
         payload.put("longSummary", board.getLongSummary());
         payload.put("newsUrl", board.getNewsUrl());
         payload.put("userId", board.getUserId());
+        payload.put("deletedYn", board.isDeletedYn());
         payload.put("createdAt", board.getCreatedAt());
         kafkaTemplate.send("board_topic", payload);
     }
