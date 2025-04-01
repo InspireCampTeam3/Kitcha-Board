@@ -2,16 +2,15 @@ package com.kitcha.board.service;
 
 import com.kitcha.board.dto.*;
 import com.kitcha.board.entity.Board;
+import com.kitcha.board.publisher.BoardEventPublisher;
 import com.kitcha.board.publisher.FileEventPublisher;
 import com.kitcha.board.repository.BoardRepository;
-import com.netflix.discovery.converters.Auto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,6 +25,12 @@ public class BoardService {
     private BoardRepository boardRepository;
 
     @Autowired
+    private BoardEventPublisher boardEventPublisher;
+
+    @Autowired
+    private SequenceGeneratorService sequenceGeneratorService; // auto increment 생성 서비스
+
+    @Autowired
     private FileEventPublisher publisher;
 
     // 1. 게시글 작성
@@ -36,9 +41,10 @@ public class BoardService {
         }
 
         Board board = boardCreate.toEntity(userId, nickname);
-        board = boardRepository.save(board);
-
-        log.info("Board created: {}", board);
+        board.setBoardId(sequenceGeneratorService.generateSequence("board_sequence"));
+//        board = boardRepository.save(board);
+        boardEventPublisher.sendBoardCreateEvent(board);
+        log.info("Publishing board create event: {}", board);
 
 //        fileService.createPdf(board);
         publisher.sendFileCreateEvent(board);
@@ -54,7 +60,7 @@ public class BoardService {
         Page<Board> boardPage = boardRepository.findByDeletedYnFalse(pageable);
 
         return boardPage.getContent().stream()
-                .map(Board ->Board.toList()) // 엔티티를 DTO로 변환 //
+                .map(Board::toList) // 엔티티를 DTO로 변환 //
                 .collect(Collectors.toList());
     }
 
@@ -68,7 +74,7 @@ public class BoardService {
         }
 
         Board board = optional.get();
-        
+
         // 삭제된 게시글인 경우 -> 잘못된 요청
         if (board.isDeletedYn()) {
             return null;
@@ -106,8 +112,10 @@ public class BoardService {
             return;
         }
 
+
         board.update(boardUpdate.getBoardTitle(), boardUpdate.getContent());
-        boardRepository.save(board);
+        // boardRepository.save(board);
+        boardEventPublisher.sendBoardUpdateEvent(board);
     }
 
     // 5. 삭제
@@ -124,7 +132,8 @@ public class BoardService {
         // 작성자 본인인 경우 || 관리자인 경우 -> 삭제 가능
         if (board.getUserId().equals(userId) || role.equals("ADMIN")) {
             board.setDeletedYn(true);
-            boardRepository.save(board);
+            // boardRepository.save(board);
+            boardEventPublisher.sendBoardDeleteEvent(board);
         }
     }
 }
