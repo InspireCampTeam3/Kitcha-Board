@@ -38,6 +38,9 @@ public class BoardService {
         Board board = boardCreate.toEntity(userId, nickname);
         board = boardRepository.save(board);
 
+        board.setBoardId(board.getId());
+        board = boardRepository.save(board);
+
         log.info("Board created: {}", board);
 
 //        fileService.createPdf(board);
@@ -59,7 +62,7 @@ public class BoardService {
     }
 
     // 3. 상세 조회
-    public BoardDetail detail(Long userId, String role, Long boardId) {
+    public BoardDetail detail(Long userId, String role, String boardId) {
         Optional<Board> optional = boardRepository.findById(boardId);
 
         // boardId에 해당하는 데이터가 없는 경우 -> 잘못된 요청
@@ -86,7 +89,7 @@ public class BoardService {
     }
 
     // 4. 수정
-    public void update(Long boardId, Long userId, BoardUpdate boardUpdate) {
+    public void update(String boardId, Long userId, BoardUpdate boardUpdate) {
         Optional<Board> optional = boardRepository.findById(boardId);
 
         // boardId에 해당하는 데이터가 없는 경우 -> 잘못된 요청
@@ -111,7 +114,7 @@ public class BoardService {
     }
 
     // 5. 삭제
-    public void delete(Long boardId, Long userId, String role) {
+    public void delete(String boardId, Long userId, String role) {
         Optional<Board> optional = boardRepository.findById(boardId);
 
         // boardId에 해당하는 데이터가 없는 경우 -> 잘못된 요청

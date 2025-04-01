@@ -14,7 +14,7 @@ public class FileEventPublisher {
 
     public void sendFileCreateEvent(Board board) {
         Map<String, Object> payload = Map.of(
-                "boardId", board.getBoardId().longValue(),
+                "boardId", board.getBoardId(),
                 "newsTitle", board.getNewsTitle(),
                 "longSummary", board.getLongSummary()
         );

@@ -47,7 +47,7 @@ public class BoardController {
     public ResponseEntity<BoardDetail> detail(
             @RequestHeader("X-User-Id") String userId,
             @RequestHeader("X-User-Role") String role,
-            @PathVariable Long boardId) {
+            @PathVariable String boardId) {
 
         BoardDetail boardDetail = boardService.detail(Long.parseLong(userId), role, boardId);
 
@@ -59,7 +59,7 @@ public class BoardController {
     // 4. 수정
     @PutMapping("/{boardId}")
     public void update(
-            @PathVariable Long boardId,
+            @PathVariable String boardId,
             @RequestHeader("X-User-Id") String userId,
             @RequestBody BoardUpdate boardUpdate) {
 
@@ -69,7 +69,7 @@ public class BoardController {
     // 5. 삭제
     @DeleteMapping("/{boardId}")
     public void delete(
-            @PathVariable Long boardId,
+            @PathVariable String boardId,
             @RequestHeader("X-User-Id") String userId,
             @RequestHeader("X-User-Role") String role) {
 

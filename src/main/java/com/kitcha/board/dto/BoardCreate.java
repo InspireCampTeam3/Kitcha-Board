@@ -8,7 +8,7 @@ import lombok.Data;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Data
 public class BoardCreate {
-    private Long boardId;
+    private String boardId;
     private String boardTitle;
     private String content;
     private String newsTitle;
