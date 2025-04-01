@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class BoardList {
-    private Long boardId;
+    private String boardId;
     private String boardTitle;
     private int hitCnt;
     private String writer;
