@@ -4,52 +4,31 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.kitcha.board.dto.BoardDetail;
 import com.kitcha.board.dto.BoardList;
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-@Entity
-@Table(name = "board")
+@Document(collection = "board")
 @Data
 @NoArgsConstructor
 public class Board {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long boardId;
+    private Long boardId; // MongoDB용 자동 증가는 별도 로직 필요
 
-    @Column
     private String nickname;
-
-    @Column(nullable = false)
     private String boardTitle;
-
-    @Column(nullable = false)
     private String content;
-
-    @Column(nullable = false)
     private int hitCnt = 0;
-
-    @Column(nullable = false)
     private String newsTitle;
-
-    @Column(nullable = false, length = 3000)
     private String longSummary;
-
-    @Column(nullable = false)
     private String newsUrl;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
     private boolean deletedYn = false;
-
-    @Column
     private Long userId;
 
 //    @OneToOne(cascade = CascadeType.ALL)
@@ -65,6 +44,7 @@ public class Board {
         this.longSummary = longSummary;
         this.newsUrl = newsUrl;
         this.userId = userId;
+        this.createdAt = LocalDateTime.now();
     }
 
     public void updateHitCnt() {
