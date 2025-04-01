@@ -66,7 +66,7 @@ public class BoardService {
 
     // 3. 상세 조회
     public BoardDetail detail(Long userId, String role, Long boardId) {
-        Optional<Board> optional = boardRepository.findById(boardId);
+        Optional<Board> optional = boardRepository.findByBoardId(boardId);
 
         // boardId에 해당하는 데이터가 없는 경우 -> 잘못된 요청
         if (optional.isEmpty()) {
